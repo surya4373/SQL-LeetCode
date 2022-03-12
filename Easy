@@ -1,0 +1,67 @@
+# question-1
+
+Write an SQL query to find the employees who earn more than their managers.
+
+select a.name as employee from 
+employee as a,
+employee as b
+where a.managerid=b.id and a.salary>b.salary
+
+https://codingsight.com/the-cartesian-product-in-sql/
+
+# question-2
+Write an SQL query to report all the duplicate emails.
+
+SELECT EMAIL 
+FROM PERSON
+GROUP BY EMAIL
+HAVING COUNT(EMAIL)>1;
+
+Groupby-- The GROUP BY statement groups rows that have the same values into summary rows, like "find the number of customers in each country".
+Having--  The HAVING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions.
+Temporary table-A temporary table in SQL Server, as the name suggests, is a database table that exists temporarily on the database server.
+A temporary table stores a subset of data from a normal table for a certain period of time.
+
+https://codingsight.com/introduction-to-temporary-tables-in-sql-server/#:~:text=A%20temporary%20table%20in%20SQL,a%20certain%20period%20of%20time.
+
+# question-3
+Write an SQL query to report all customers who never order anything.
+
+https://data-flair.training/blogs/sql-subquery/
+
+select customers.name as 'Customers'
+from customers
+where customers.id not in
+(
+    select customerid from orders
+);
+
+#question-4
+Write an SQL query to report the number of customers who had at least one bill with an amount strictly greater than 500.
+
+SELECT COUNT(DISTINCT customer_id) AS rich_count FROM Store WHERE amount > 500
+
+#question-5
+Write an SQL query to report:
+
+"New York University" if New York University wins the competition.
+"California University" if California University wins the competition.
+"No Winner" if the competition ends in a draw.
+
+https://www.geeksforgeeks.org/sql-with-clause/
+
+with ny_count AS (SELECT count(student_id) AS count
+FROM NewYork
+WHERE score >= 90),
+
+cali_count AS (SELECT count(student_id) AS count
+FROM California
+WHERE score >= 90)
+
+SELECT
+CASE
+WHEN ny_count.count > cali_count.count THEN "New York University"
+WHEN ny_count.count < cali_count.count THEN "California University"
+ELSE "No Winner"
+END as "winner"
+FROM ny_count, cali_count
