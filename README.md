@@ -1,2 +1,3 @@
 # SQL-LeetCode
-SQL
+
+Practice Solutions
