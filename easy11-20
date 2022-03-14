@@ -1,0 +1,135 @@
+# question --11
+Write an SQL query to find the overall acceptance rate of requests, which is the number of acceptance divided by the number of requests. 
+Return the answer rounded to 2 decimals places?
+
+SELECT
+ROUND(
+    IFNULL(
+    (SELECT COUNT(*) FROM (SELECT DISTINCT requester_id, accepter_id FROM RequestAccepted) AS A)
+    /
+    (SELECT COUNT(*) FROM (SELECT DISTINCT sender_id, send_to_id FROM FriendRequest) AS B),
+    0)
+, 2) AS accept_rate;
+
+write a query to return the accept rate but for every month?
+
+select extract(YEAR_MONTH from f.request_date) as year_month, 
+round(ifnull(count(distinct r.requester_id, r.accepter_id)/count(distinct f.sender_id, f.send_to_id),0),2) as accept_rate
+from FriendRequest f join RequestAccepted r on extract(YEAR_MONTH from f.request_date) = extract(YEAR_MONTH from r.accept_date)
+group by extract(YEAR_MONTH from f.request_date)
+
+#Question-12
+
+Write an SQL query to report all the consecutive available seats in the cinema.
+Return the result table ordered by seat_id in ascending order
+
+https://learnsql.com/blog/difference-between-group-by-partition-by/
+https://learnsql.com/blog/lead-and-lag-functions-in-sql/
+
+SELECT
+    seat_id
+FROM
+    (SELECT
+        seat_id,
+        free,
+        LAG(free,1) OVER (ORDER BY seat_id) as free_lag,
+        LEAD(free,1) OVER (ORDER BY seat_id) as free_lead
+    FROM cinema ) as t
+WHERE (free=1 AND free_lag=1)
+OR (free=1 AND free_lead=1)
+order by 1
+;
+
+# Question -13
+Write an SQL query to report the names of all the salespersons who did not have any orders related to the company with the name "RED".
+https://www.w3schools.com/sql/sql_join_left.asp
+
+SELECT s.name from salesperson s
+where s.sales_id not in (select o.sales_id from orders o left join company c on 
+                            o.com_id=c.com_id where c.name='RED')
+                            
+# Question-14
+Write an SQL query to report for every three line segments whether they can form a triangle.
+
+SELECT x, y, z,
+CASE WHEN x+y<=z OR
+          x+z<=y OR
+          y+z<=x
+     THEN 'No'
+     ELSE 'Yes'
+END AS 'triangle'
+FROM triangle;
+
+https://www.sqlshack.com/case-statement-in-sql/
+
+# Question -15
+
+Write an SQL query to report the shortest distance between any two points from the Point table.
+
+SELECT min(distance) as shortest from
+(
+SELECT x, abs(x- LEAD(x) OVER(order by x asc)) as distance from point
+) x
+
+# Question-16
+Write an SQL query to report the largest single number. If there is no single number, report null.
+
+SELECT MAX(CASE WHEN length(num)>=1 then num else null end) as num FROM(
+SELECT num FROM MyNumbers
+group by 1
+having count(1)=1
+    )A
+    
+#Question-17
+Write an SQL query to report the movies with an odd-numbered ID and a description that is not "boring".
+Return the result table ordered by rating in descending order.
+
+select *
+from cinema
+where mod(id, 2) = 1 and description != 'boring'
+order by rating DESC
+;
+https://www.w3schools.com/sql/func_mysql_mod.asp
+
+# Question -18
+Write an SQL query to swap all 'f' and 'm' values (i.e., change all 'f' values to 'm' and vice versa) 
+with a single update statement and no intermediate temporary tables.
+
+
+UPDATE salary
+SET
+    sex = CASE sex
+        WHEN 'm' THEN 'f'
+        ELSE 'm'
+    END;
+
+https://www.w3schools.com/sql/sql_ref_set.asp
+
+# Question-19
+Write a SQL query for a report that provides the pairs (actor_id, director_id) where the actor has cooperated with the director at least three times.
+
+SELECT DISTINCT
+    actor_id,
+    director_id
+FROM
+(
+    SELECT
+        actor_id,
+        director_id,
+        COUNT(timestamp) OVER(PARTITION BY actor_id , director_id) AS cnt
+    FROM
+        ActorDirector
+) T
+WHERE cnt >= 3
+https://mode.com/blog/date-trunc-sql-timestamp-function-count-on/
+https://codingsight.com/grouping-data-using-the-over-and-partition-by-functions/
+
+#Question 20
+
+Write an SQL query that reports the total quantity sold for every product id.
+
+
+select product_id,sum(quantity) as total_quantity
+From Sales 
+Group By product_id
+
